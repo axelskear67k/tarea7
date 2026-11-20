@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detección de rostro</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/p5@2.3.2/lib/p5.js"></script>
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+</head>
+<body>
+
+<script>
+
+//Objetos
+let faceMesh
+let video
+let faces = []
+
+let options = {
+  maxFaces: 1,
+  refineLandmarks: false,
+  flipped: false
+}
+
+//Configuración
+async function setup() {
+
+  createCanvas(640, 480)
+
+  faceMesh = await ml5.faceMesh(options)
+
+  //Acceder a la cámara
+  video = createCapture(VIDEO)
+  video.size(640, 480)
+  video.hide()
+
+  //Iniciar la detección
+  faceMesh.detectStart(video, gotFaces)
+
+}
+
+//Renderizado
+function draw() {
+
+  //Mostrar video
+  image(video, 0, 0, width, height)
+
+  //Detectar rostro
+  if (faces.length > 0) {
+
+    let face = faces[0]
+
+    //Marcar labios
+    if (face.lips) {
+
+      for (let i = 0; i < face.lips.keypoints.length; i++) {
+
+        let lips = face.lips.keypoints[i]
+
+        fill(0, 255, 0)
+        noStroke()
+        circle(lips.x, lips.y, 5)
+
+      }
+    }
+
+    //Marcar ojo izquierdo
+    if (face.leftEye) {
+
+      for (let i = 0; i < face.leftEye.keypoints.length; i++) {
+
+        let eye = face.leftEye.keypoints[i]
+
+        fill(255, 0, 0)
+        noStroke()
+        circle(eye.x, eye.y, 5)
+
+      }
+    }
+
+    //Marcar ojo derecho
+    if (face.rightEye) {
+
+      for (let i = 0; i < face.rightEye.keypoints.length; i++) {
+
+        let eye = face.rightEye.keypoints[i]
+
+        fill(255, 0, 0)
+        noStroke()
+        circle(eye.x, eye.y, 5)
+
+      }
+    }
+
+  }
+}
+
+//Resultado de la detección
+function gotFaces(results) {
+
+  faces = results
+
+}
+
+</script>
+
+</body>
+</html>

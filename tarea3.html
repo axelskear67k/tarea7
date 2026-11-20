@@ -1,0 +1,98 @@
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Circulo por tamaño</title>
+  </head>
+  <body>
+
+    <script src="https://cdn.jsdelivr.net/npm/p5@2.3.2/lib/p5.js"></script>
+    <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+
+    <script>
+      //Paso 1 (objetos y variables)
+      let handPose
+      let video
+      let hands = []
+
+      //Paso 2 - Configuración
+      async function setup(){
+
+        handPose = await ml5.handPose()
+
+        createCanvas(640, 480)
+
+        //Acceder a la cámara
+        video = createCapture(VIDEO)
+        video.size(640, 480)
+        video.hide()
+
+        //Iniciar la detección
+        handPose.detectStart(video, gotHands)
+      }
+
+      //Paso 3 - Renderizado (dibujar)
+      function draw(){
+
+        //Pintar el vídeo
+        image(video, 0, 0, width, height)
+
+        //Detectar la primera mano
+        if (hands.length > 0){
+
+          let hand = hands[0]
+
+          //Identificar índice y pulgar
+          let indice = hand.keypoints[8]
+          let pulgar = hand.keypoints[4]
+
+          //Calcular distancia entre dedos
+          let distancia = dist(
+            indice.x, indice.y,
+            pulgar.x, pulgar.y
+          )
+
+          //Calcular el punto medio
+          let x = (indice.x + pulgar.x) / 2
+          let y = (indice.y + pulgar.y) / 2
+
+          //Clasificar el tamaño del círculo
+          if (distancia < 40){
+
+            //Círculo pequeño - Verde
+            fill(0, 255, 0)
+            circle(x, y, 30)
+
+          } else if (distancia < 80){
+
+            //Círculo mediano - Azul
+            fill(0, 0, 255)
+            circle(x, y, 50)
+
+          } else {
+
+            //Círculo grande - Rojo
+            fill(255, 0, 0)
+            circle(x, y, 70)
+
+          }
+
+          //Configuración del círculo
+          stroke(0)
+          strokeWeight(2)
+
+        }
+      }
+
+      //Paso 4 - gotHands (resultado)
+      function gotHands(results){
+
+        hands = results
+
+      }
+
+    </script>
+  </body>
+</html>

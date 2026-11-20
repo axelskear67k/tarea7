@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+
+
+
+</head>
+<body>
+
+  <script>
+    //Objetos
+    let handPose
+    let video
+    let hands = []
+    let distancia
+
+    async function setup() {
+      handPose = await ml5.handPose()
+
+      /* LQ > HQ > HD > FHD > 2K > 4K > 8K */
+      createCanvas(640, 480) //HQ (Alta Calidad)
+      
+      //Deteccion de video (camara)
+      video = createCapture(VIDEO)
+      video.size(640, 480)
+      video.hide()
+
+      //(fuenteVideo, callback function)
+      handPose.detectStart(video, gotHands)
+    }
+
+    //Render
+    function draw(){
+      image(video, 0, 0, width, height)
+
+      // El renderizado se realiza cuando tiene una mano detectada
+      //hands contiene la informacion de cada dedo y su ubicacion en 2d y 3d
+      if(hands.length > 0){
+        //Index finger (dedo índice)
+        let finger = hands[0].index_finger_tip
+        //Pulgar
+        let thumb = hands[0].thumb_tip
+
+        
+
+        //Dibujar un circulo entre los dedos (índice, pulgar)
+        let centerX = (finger.x + thumb.x) / 2
+        let centerY = (finger.y + thumb.y) / 2
+        distancia = dist(finger.x, finger.y, thumb.x, thumb.y)
+
+        //Pintar el circulo
+        //R - G - B - Alpha (transparencia 0 - 255 solido)
+      }
+    }
+
+    //Resultados
+    function gotHands(results){
+      hands = results
+
+    }
+
+  </script>
+
+
+
+
+  
+</body>
+</html>
