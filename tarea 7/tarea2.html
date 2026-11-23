@@ -1,0 +1,113 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linea entre indices</title>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+    }
+    h1 { color: #38bdf8; margin-top: 30px; }
+    p { color: #cbd5e1; }
+    canvas {
+      border: 4px solid #38bdf8;
+      border-radius: 15px;
+      box-shadow: 0 0 25px #0284c7;
+      margin-top: 20px;
+      max-width: 90%;
+      height: auto;
+    }
+    .info {
+      background: #1e293b;
+      padding: 15px;
+      border-radius: 12px;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>✋ Conexión entre Dedos Índices</h1>
+  <p>Reconocimiento de manos con Inteligencia Artificial</p>
+
+  <div class="info">
+    Levanta ambas manos frente a la cámara.
+    Una línea roja conectará tus dedos índices.
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/p5@2.3.2/lib/p5.js"></script>
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+
+  <script>
+    //Paso 1 (objetos y variables)
+    let handPose
+    let video
+    let hands = []
+    let connections
+
+    //Paso 2 - Configuración
+    async function setup(){
+
+      handPose = await ml5.handPose()
+
+      createCanvas(640, 480)
+
+      video = createCapture(VIDEO)
+      video.size(640, 480)
+      video.hide()
+
+      //Iniciar la detección
+      handPose.detectStart(video, gotHands)
+      connections = handPose.getConnections()
+    }
+
+    //Paso 3 - Renderizado (dibujar)
+    function draw(){
+
+      //Pintar el vídeo
+      image(video, 0, 0, width, height)
+
+      //Detectar las dos manos
+      if (hands.length >= 2){
+
+        //Identificar las manos
+        let mano1 = hands[0]
+        let mano2 = hands[1]
+
+        //Identificar la punta de los índices
+        let indice1 = mano1.keypoints[8]
+        let indice2 = mano2.keypoints[8]
+
+        //Dibujar línea entre los índices
+        stroke(255, 0, 0)
+        strokeWeight(4)
+        line(indice1.x, indice1.y, indice2.x, indice2.y)
+
+        //Dibujar puntos en los índices
+        fill(0, 255, 0)
+        noStroke()
+        circle(indice1.x, indice1.y, 12)
+        circle(indice2.x, indice2.y, 12)
+
+      }
+    }
+
+    //Paso 4 - gotHands (resultado)
+    function gotHands(results){
+
+      hands = results
+
+    }
+
+  </script>
+</body>
+</html>
